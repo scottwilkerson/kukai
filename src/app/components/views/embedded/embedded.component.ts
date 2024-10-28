@@ -407,6 +407,14 @@ export class EmbeddedComponent implements OnInit {
         operations: true,
         micheline: true
       }
+    },
+    fxhash: {
+      origins: ['https://www.fxhash.xyz', 'https://fxhash.xyz'],
+      permissions: {
+        login: true,
+        operations: true,
+        micheline: true
+      }
     }
   };
   constructor(
