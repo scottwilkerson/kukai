@@ -344,8 +344,7 @@ export class WalletConnectService {
       const data = request.wcData;
       let msg = {};
       if (request.type === 'operation_request') {
-        // this is not a transaction hash, but need this property name to get it working with Beacon
-        msg = { transactionHash: hash };
+        msg = { operationHash: hash };
       } else if (request.type === 'sign_payload_request') {
         msg = { signature: hash };
       } else {
