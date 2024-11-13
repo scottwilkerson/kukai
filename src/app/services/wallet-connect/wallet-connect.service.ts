@@ -288,9 +288,16 @@ export class WalletConnectService {
   async approvePairing(request: any, publicKey: string) {
     if (this.client) {
       const data = request.wcData;
+      const beaconVersion: string = data?.params?.sessionProperties?.beacon_sdk_version ?? '';
+      console.log('@ beaconVersion', beaconVersion);
       const namespaces: SessionTypes.Namespaces = {};
       const address = utils.pkToPkh(publicKey);
-      const accounts: string[] = [`tezos:${CONSTANTS.NETWORK}:${publicKey}`];
+      let accounts: string[] = [`tezos:${CONSTANTS.NETWORK}:${address}`];
+      if (beaconVersion) {
+        /* https://github.com/airgap-it/beacon-sdk/releases/tag/v4.3.0 */
+        [`tezos:${CONSTANTS.NETWORK}:${address}`, `tezos:${CONSTANTS.NETWORK}:${publicKey}`];
+      }
+      console.log('@ accounts', accounts);
       const methods = data.params.requiredNamespaces?.tezos?.methods
         ?.filter((method) => this.supportedMethods.includes(method))
         .concat(data.params.optionalNamespaces?.tezos?.methods?.filter((method) => this.supportedMethods.includes(method)))
@@ -299,11 +306,15 @@ export class WalletConnectService {
         ?.filter((event) => this.supportedEvents.includes(event))
         .concat(data.params.optionalNamespaces?.tezos?.events?.filter((event) => this.supportedEvents.includes(event)))
         .filter((e) => e);
-      const sessionProperties = {
+      let sessionProperties: any = {
         algo: address.startsWith('tz1') ? 'ed25519' : address.startsWith('tz2') ? 'secp256k1' : 'unknown',
         address: address,
         pubkey: publicKey
       };
+      if (beaconVersion) {
+        sessionProperties.beacon_sdk_version = beaconVersion;
+      }
+      console.log('@ sessionProperties', sessionProperties);
       namespaces.tezos = {
         accounts,
         methods: [...new Set<string>(methods)], // deduplicate
@@ -333,8 +344,7 @@ export class WalletConnectService {
       const data = request.wcData;
       let msg = {};
       if (request.type === 'operation_request') {
-        // this is not a transaction hash, but need this property name to get it working with Beacon
-        msg = { transactionHash: hash };
+        msg = { operationHash: hash };
       } else if (request.type === 'sign_payload_request') {
         msg = { signature: hash };
       } else {
@@ -504,7 +514,8 @@ export class WalletConnectService {
           inKeychain = !kc ? false : !!JSON.parse(kc)[session?.topic];
         }
         if (session?.acknowledged && inKeychain) {
-          const accountAddress = utils.pkToPkh(session?.namespaces?.tezos?.accounts[0].split(':')[2]);
+          const acc = session?.namespaces?.tezos?.accounts[0].split(':')[2];
+          const accountAddress = utils.validAddress(acc) ? acc : utils.validPublicKey(acc) ? utils.pkToPkh(acc) : '?';
           return { name: session?.peer?.metadata?.name, address: accountAddress, topic: session.topic, expiry: session.expiry };
         }
       })
@@ -558,13 +569,27 @@ export class WalletConnectService {
     }
   }
   public async updateSession(topic: string, newPk: string) {
-    console.log('newPk', newPk);
+    if (!utils.validPublicKey(newPk)) {
+      console.error('invalid pk');
+      return;
+    }
     if (this.client) {
+      const pkh = utils.pkToPkh(newPk);
       const session = this.client.session.get(topic);
+      const beaconVersion: string = session?.sessionProperties?.beacon_sdk_version ?? '';
+      console.log('@ beaconVersion', beaconVersion);
       let namespaces = session.namespaces;
+      // change pkh
       let acc = namespaces.tezos.accounts[0].split(':');
-      acc[2] = newPk;
+      acc[2] = pkh;
       namespaces.tezos.accounts[0] = acc.join(':');
+      if (beaconVersion && namespaces.tezos.accounts.length > 1) {
+        // change pk
+        acc = namespaces.tezos.accounts[1].split(':');
+        acc[2] = newPk;
+        namespaces.tezos.accounts[1] = acc.join(':');
+      }
+      console.log('@ accounts', namespaces.tezos.accounts);
       const { acknowledged } = await this.client.update({ topic, namespaces });
       this.refresh();
       await acknowledged();
