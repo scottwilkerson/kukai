@@ -55,38 +55,6 @@ interface Permissions {
 })
 export class EmbeddedComponent implements OnInit {
   readonly permissionMatrix: Record<string, Permissions> = {
-    brio: {
-      origins: ['https://playwithbrio.com', 'https://www.playwithbrio.com', 'https://production.playwithbrio.com'],
-      permissions: {
-        login: true,
-        operations: true,
-        micheline: true
-      }
-    },
-    minterpop: {
-      origins: ['https://minterpop.com', '*.minterpop.com'],
-      permissions: {
-        login: true,
-        operations: true,
-        micheline: true
-      }
-    },
-    interpop: {
-      origins: ['https://interpopcomics.com', 'https://www.interpopcomics.com'],
-      permissions: {
-        login: true,
-        operations: true,
-        micheline: true
-      }
-    },
-    humanMachine: {
-      origins: ['https://human-machine.io'],
-      permissions: {
-        login: true,
-        operations: false,
-        micheline: false
-      }
-    },
     ubisoft: {
       origins: ['*.ubisoft.com'],
       permissions: {
@@ -120,14 +88,6 @@ export class EmbeddedComponent implements OnInit {
         micheline: false
       }
     },
-    blockspace: {
-      origins: ['https://block-space.app'],
-      permissions: {
-        login: true,
-        operations: false,
-        micheline: false
-      }
-    },
     evian: {
       origins: ['https://nft.evian.com', 'https://happy85.marieclaire.fr', 'https://claim.renaissance.land'],
       permissions: {
@@ -152,14 +112,6 @@ export class EmbeddedComponent implements OnInit {
         micheline: true
       }
     },
-    studioexception: {
-      origins: ['https://studioexception.eu'],
-      permissions: {
-        login: true,
-        operations: false,
-        micheline: true
-      }
-    },
     cleantree: {
       origins: ['https://cleantree.artshelp.net'],
       permissions: {
@@ -176,24 +128,8 @@ export class EmbeddedComponent implements OnInit {
         micheline: true
       }
     },
-    kanvas: {
-      origins: ['*.tzconnect.berlin', 'https://metavert.sowvital.com'],
-      permissions: {
-        login: true,
-        operations: true,
-        micheline: true
-      }
-    },
     proofof: {
       origins: ['https://proofofperformance.xyz', 'https://pop-six.vercel.app'],
-      permissions: {
-        login: true,
-        operations: false,
-        micheline: false
-      }
-    },
-    emergents: {
-      origins: ['https://play.emergentstcg.com'],
       permissions: {
         login: true,
         operations: false,
@@ -264,48 +200,8 @@ export class EmbeddedComponent implements OnInit {
         micheline: false
       }
     },
-    flosports: {
-      origins: ['https://collectibles.flosports.tv'],
-      permissions: {
-        login: true,
-        operations: true,
-        micheline: true
-      }
-    },
-    serpentine: {
-      origins: ['https://digital.serpentinegalleries.org', '*.prod.gke.papers.tech'],
-      permissions: {
-        login: true,
-        operations: false,
-        micheline: false
-      }
-    },
-    sowvital: {
-      origins: ['https://collectibles.sowvital.com'],
-      permissions: {
-        login: true,
-        operations: true,
-        micheline: true
-      }
-    },
     bargainer: {
       origins: ['https://bargainer.ai', 'https://www.bargainer.ai'],
-      permissions: {
-        login: true,
-        operations: false,
-        micheline: false
-      }
-    },
-    aigam: {
-      origins: ['https://aigam.es', 'https://www.aigam.es'],
-      permissions: {
-        login: true,
-        operations: false,
-        micheline: false
-      }
-    },
-    bouncer: {
-      origins: ['https://convincethebouncer.com'],
       permissions: {
         login: true,
         operations: false,
