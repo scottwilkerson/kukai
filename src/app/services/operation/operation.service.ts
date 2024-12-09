@@ -440,13 +440,22 @@ export class OperationService {
   checkApplied(applied: any) {
     let failed = false;
     for (let i = 0; i < applied[0].contents.length; i++) {
-      if (applied[0].contents[i].metadata.operation_result.status !== 'applied') {
+      const metadata = applied[0].contents[i].metadata;
+      if (metadata.operation_result.status !== 'applied') {
         failed = true;
-        if (applied[0].contents[i].metadata.operation_result.errors) {
-          console.log('Error in operation_result');
-          throw applied[0].contents[i].metadata.operation_result.errors[applied[0].contents[i].metadata.operation_result.errors.length - 1];
-        } else if (applied[0].contents[i].metadata.internal_operation_results) {
-          for (const ior of applied[0].contents[i].metadata.internal_operation_results) {
+        if (metadata.operation_result.errors) {
+          console.log('Error in operation_result', metadata.operation_result.errors);
+          const primaryError = metadata.operation_result.errors[metadata.operation_result.errors.length - 1];
+          // Exception to get a more meaningful error when balance is too low
+          if (primaryError?.id?.endsWith('.tez.subtraction_underflow') && metadata.operation_result.errors.length > 1) {
+            const secondaryError = metadata.operation_result.errors[metadata.operation_result.errors.length - 2];
+            if (secondaryError?.id?.endsWith('.balance_too_low')) {
+              throw secondaryError;
+            }
+          }
+          throw primaryError;
+        } else if (metadata.internal_operation_results) {
+          for (const ior of metadata.internal_operation_results) {
             if (ior?.result?.status === 'failed') {
               console.log('Error in internal_operation_results', ior);
               throw ior.result.errors[ior.result.errors.length - 1];
@@ -461,7 +470,7 @@ export class OperationService {
     }
   }
   errHandler(error: any): Observable<any> {
-    console.log(error);
+    console.log('errHandler', error);
     let errorId;
     if (error.error && typeof error.error === 'string') {
       // parsing errors
