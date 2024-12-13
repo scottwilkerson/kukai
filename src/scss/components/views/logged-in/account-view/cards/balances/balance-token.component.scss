@@ -30,6 +30,7 @@ $base-blue-color: v.$base-blue-color;
     border-bottom: 2px solid transparent;
     background-color: v.$balances-background-color;
   }
+
   &.no-box .balance {
     box-shadow: none !important;
     border-color: $border-color;
@@ -42,8 +43,10 @@ $base-blue-color: v.$base-blue-color;
     border-top: none !important;
   }
 }
+
 :host button {
   position: relative;
+
   &.with-image {
     padding: 0.75rem;
     border: v.$border-width solid transparent;
@@ -69,12 +72,15 @@ $base-blue-color: v.$base-blue-color;
       border: v.$border-width solid v.$send-button-buy-border-color;
       border-radius: v.$border-radius-hardest;
       background-color: v.$send-button-buy-background-color;
+
       & span {
         color: v.$send-button-buy-icon-color;
       }
+
       & svg {
         width: 2rem;
         height: 2rem;
+
         path {
           stroke: v.$send-button-buy-icon-color;
         }
@@ -101,6 +107,7 @@ $base-blue-color: v.$base-blue-color;
           font-size: 1rem;
           text-transform: initial;
         }
+
         &.alt {
           left: 0.5rem;
           top: 4.5rem;
@@ -115,6 +122,17 @@ $base-blue-color: v.$base-blue-color;
     color: v.$base-end-color-static;
   }
 }
+
+.staked-xtz-balance {
+  @media (max-width: v.$layout-break-6) {
+    height: 10rem !important;
+  }
+
+  @media (min-width: v.$layout-break-6) {
+    height: 8rem !important;
+  }
+}
+
 .balance {
   align-items: flex-start;
   padding: calc(2rem * #{$compactness}) 0;
@@ -122,7 +140,8 @@ $base-blue-color: v.$base-blue-color;
   height: 3.5rem;
   border-top: 2px solid $border-color;
 
-  & > * {
+
+  &>* {
     margin-right: 0.5rem;
 
     &:last-child {
@@ -133,6 +152,7 @@ $base-blue-color: v.$base-blue-color;
   & .left {
     width: calc(100% - 4rem);
     justify-content: flex-start;
+    align-items: flex-start;
 
     & .asset {
       width: 3.5rem;
@@ -146,16 +166,62 @@ $base-blue-color: v.$base-blue-color;
 
     & .title {
       @include m.multiply("font-size", 1.5);
-      width: 8rem;
-      margin-right: 0rem;
       height: 3rem;
       align-items: flex-start;
       letter-spacing: 0.02em;
       cursor: pointer;
     }
 
+    & .titles {
+      width: 8rem;
+      margin-right: 0rem;
+
+      & .title {
+        @include m.multiply("font-size", 1.5);
+        height: 3rem;
+        align-items: flex-start;
+        letter-spacing: 0.02em;
+        cursor: pointer;
+      }
+
+      & .staked-tezos-title {
+        @include m.multiply("font-size", 1.5, "rem", 1.3);
+        margin-bottom: 0.25rem;
+      }
+
+      & .subtitle {
+        @include m.multiply("font-size", 1, "rem", 1.3);
+        color: $base-font-color-secondary;
+        font-weight: 500;
+      }
+
+      & .pending-unstake-badge {
+        @include m.multiply("font-size", 1, "rem", 1);
+        background: #ffd700;
+        color: #000;
+        padding: 2px 4px;
+        border-radius: 2px;
+        width: 9rem;
+        display: flex;
+        align-self: flex-end;
+      }
+    }
+
+    & .staked-xtz-row {
+      margin-top: 1rem;
+      justify-content: start !important;
+
+      & .titles {
+        width: 4.5rem;
+        margin: 0 3.5rem 0 0rem;
+        justify-content: flex-start;
+        align-items: flex-start;
+        display: flex;
+        flex-flow: column nowrap;
+      }
+    }
+
     & .prices {
-      max-width: calc(100% - 14rem);
       min-height: 3rem;
 
       & .price {
@@ -177,6 +243,7 @@ $base-blue-color: v.$base-blue-color;
   & .right {
     height: 100%;
     justify-content: flex-end;
+    align-items: flex-start;
 
     & .icon-send,
     & .icon-fund {
@@ -193,6 +260,13 @@ $base-blue-color: v.$base-blue-color;
 
 @media (min-width: v.$layout-break-6) {
   :host button.with-image.buy:hover .tooltip {
-      display: block;
+    display: block;
+  }
+}
+
+@media (max-width: v.$layout-break-6) {
+  :host .balance .left .staked-xtz-row .titles {
+    width: 6rem;
+    margin: 0 2rem 0 0rem;
   }
 }
