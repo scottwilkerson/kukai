@@ -26,7 +26,10 @@ export class BalanceTokenComponent implements OnInit {
   }
 
   getBalanceFiat(): number | undefined {
-    return this.token.name === 'tezos' ? this.account?.balanceUSD || undefined : this.token?.price && this.token.price >= 0.005 ? this.token.price : undefined;
+    if (this.token?.name === 'tezos') {
+      const available = this.account?.availableBalance !== null ? this.account?.availableBalance : 0;
+      return Number((available / 1000000) * this.walletService.wallet.XTZrate);
+    }
   }
 
   getStakedBalance(): Big | null {
