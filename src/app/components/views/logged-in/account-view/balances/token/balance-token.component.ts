@@ -29,7 +29,10 @@ export class BalanceTokenComponent implements OnInit {
     if (this.token?.name === 'tezos') {
       const available = this.account?.availableBalance !== null ? this.account?.availableBalance : 0;
       return Number((available / 1000000) * this.walletService.wallet.XTZrate);
+    } else if (this.token?.price && this.token?.price > 0.005) {
+      return this.token.price;
     }
+    return null;
   }
 
   getStakedBalance(): Big | null {
