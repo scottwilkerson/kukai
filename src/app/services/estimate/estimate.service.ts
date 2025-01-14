@@ -281,7 +281,7 @@ export class EstimateService {
   simulate(op: any): Observable<any> {
     op.signature = 'edsigtXomBKi5CTRf5cjATJWSyaRvhfYNHqSUGrn4SdbYRcGwQrUGjzEfQDTuqHhuA8b2d8NarZjz8TRf65WkpQmo423BtomS8Q';
     return this.operationService
-      .postRpc('chains/main/blocks/head/helpers/scripts/run_operation', {
+      .postRpc('chains/main/blocks/head/helpers/scripts/simulate_operation?version=1', {
         operation: op,
         chain_id: this.chainId
       })
