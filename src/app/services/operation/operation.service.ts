@@ -326,7 +326,7 @@ export class OperationService {
               return this.postRpc('chains/main/blocks/head/helpers/scripts/simulate_operation?version=1', { operation: fop, chain_id: header.chain_id }).pipe(
                 flatMap((applied: any) => {
                   console.log('applied: ' + JSON.stringify(applied));
-                  this.checkApplied([applied]);
+                  this.checkApplied([applied], true);
                   return of({
                     success: true,
                     payload: {
@@ -376,7 +376,7 @@ export class OperationService {
     return this.postRpc('chains/main/blocks/head/helpers/preapply/operations', [fop]).pipe(
       flatMap((applied: any) => {
         console.log('preapply result', applied);
-        this.checkApplied(applied);
+        this.checkApplied(applied, false);
         let newKT1s = [];
         try {
           for (let i = 0; i < applied[0].contents.length; i++) {
@@ -437,32 +437,37 @@ export class OperationService {
       })
     );
   }
-  checkApplied(applied: any) {
+  checkApplied(applied: any, isSimulation: boolean) {
     let failed = false;
-    for (let i = 0; i < applied[0].contents.length; i++) {
-      const metadata = applied[0].contents[i].metadata;
-      if (metadata.operation_result.status !== 'applied') {
-        failed = true;
-        if (metadata.operation_result.errors) {
-          console.log('Error in operation_result', metadata.operation_result.errors);
-          const primaryError = metadata.operation_result.errors[metadata.operation_result.errors.length - 1];
-          // Exception to get a more meaningful error when balance is too low
-          if (primaryError?.id?.endsWith('.tez.subtraction_underflow') && metadata.operation_result.errors.length > 1) {
-            const secondaryError = metadata.operation_result.errors[metadata.operation_result.errors.length - 2];
-            if (secondaryError?.id?.endsWith('.balance_too_low')) {
-              throw secondaryError;
+    try {
+      for (let i = 0; i < applied[0].contents.length; i++) {
+        const metadata = applied[0].contents[i].metadata;
+        if (metadata.operation_result.status !== 'applied') {
+          failed = true;
+          if (metadata.operation_result.errors) {
+            console.log('Error in operation_result', metadata.operation_result.errors);
+            const primaryError = metadata.operation_result.errors[metadata.operation_result.errors.length - 1];
+            // Exception to get a more meaningful error when balance is too low
+            if (primaryError?.id?.endsWith('.tez.subtraction_underflow') && metadata.operation_result.errors.length > 1) {
+              const secondaryError = metadata.operation_result.errors[metadata.operation_result.errors.length - 2];
+              if (secondaryError?.id?.endsWith('.balance_too_low')) {
+                throw secondaryError;
+              }
             }
-          }
-          throw primaryError;
-        } else if (metadata.internal_operation_results) {
-          for (const ior of metadata.internal_operation_results) {
-            if (ior?.result?.status === 'failed') {
-              console.log('Error in internal_operation_results', ior);
-              throw ior.result.errors[ior.result.errors.length - 1];
+            throw primaryError;
+          } else if (metadata.internal_operation_results) {
+            for (const ior of metadata.internal_operation_results) {
+              if (ior?.result?.status === 'failed') {
+                console.log('Error in internal_operation_results', ior);
+                throw ior.result.errors[ior.result.errors.length - 1];
+              }
             }
           }
         }
       }
+    } catch (e) {
+      this.kvReport(e, applied, isSimulation);
+      throw e;
     }
     if (failed) {
       console.error(applied);
@@ -1499,5 +1504,16 @@ export class OperationService {
         })
       )
       .pipe(catchError((err) => this.errHandler(err)));
+  }
+  kvReport(e: any, applied: any, isSim: boolean) {
+    try {
+      const kind = isSim ? 'sim' : 'pre';
+      const id = e?.id;
+      const eventUrl = `https://services.kukai.app/v1/events/?eventId=rpc-error-${kind}&id=${id}&data=${encodeURIComponent(JSON.stringify(applied))}`;
+      if (CONSTANTS.MAINNET) {
+        fetch(eventUrl);
+      }
+      console.log('kvReport', kind, e?.id, applied);
+    } catch (e) {}
   }
 }

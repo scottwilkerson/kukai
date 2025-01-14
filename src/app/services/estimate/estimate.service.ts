@@ -287,7 +287,7 @@ export class EstimateService {
       })
       .pipe(
         flatMap((res) => {
-          this.operationService.checkApplied([res]);
+          this.operationService.checkApplied([res], true);
           return of(res);
         })
       )
